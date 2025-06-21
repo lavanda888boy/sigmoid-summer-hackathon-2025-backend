@@ -26,7 +26,7 @@ SECRET_KEY = getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv("DEBUG", "False").lower() in ("true", "1", "t")
 
-ALLOWED_HOSTS = getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = getenv('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'users',
 ]
 
@@ -50,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -132,3 +135,38 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # DRF settings
 
 AUTH_USER_MODEL = 'users.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# Auth. settings
+
+from datetime import timedelta
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'auth-token'
+JWT_AUTH_REFRESH_COOKIE = 'refresh-token'
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(getenv('ACCESS_TOKEN_LIFETIME_M'))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(getenv('REFRESH_TOKEN_LIFETIME_D'))),
+    "SIGNING_KEY": getenv('JWT_SECRET'),
+    "ALGORITHM": 'HS256',
+    "AUTH_HEADER_TYPES": ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# GitHub OAuth settings
+
+GITHUB_CLIENT_ID = getenv('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = getenv('GITHUB_CLIENT_SECRET')
+GITHUB_REDIRECT_URI = getenv('GITHUB_REDIRECT_URI')
+
+# CORS settings
+
+CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS').split(',')
+CORS_ALLOW_CREDENTIALS = True

@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.postgres.fields import ArrayField
 from django.utils import timezone
 import string
@@ -7,24 +7,21 @@ import random
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, password=None, **extra_fields):
+    def create_user(self, email, username, password=None, profile_pic_url=None, **extra_fields):
+        if not email:
+            raise ValueError("The email field is required")
         if not username:
             raise ValueError("The username field is required")
 
-        user = self.model(username=username, **extra_fields)
-        user.set_password(password)
+        email = self.normalize_email(email)
+        user = self.model(email=email, username=username, profile_pic_url=profile_pic_url, **extra_fields)
+        if password is None:
+            user.set_password(self.make_random_password())
+        else:
+            user.set_password(password)
         user.save(using=self._db)
 
         return user
-
-    def create_superuser(self, username, password=None, **extra_fields):
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError("Superuser must have is_superuser=True")
-
-        return self.create_user(username, password, **extra_fields)
-    
     def make_random_password(self) -> str:
         groups = {
             'numbers': string.digits,
@@ -67,7 +64,8 @@ class User(AbstractBaseUser):
         ('docs', 'Documentation'),
     }
     
-    username = models.CharField(max_length=100, unique=True, blank=False)    
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(unique=True)
     registered_at = models.DateTimeField(default=timezone.now)
 
     pref_langs = ArrayField(
@@ -81,5 +79,10 @@ class User(AbstractBaseUser):
         default=list,
         blank=True,
     )
+
+    profile_pic_url = models.TextField(blank=False)
+
+    USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
 
     objects = CustomUserManager()
