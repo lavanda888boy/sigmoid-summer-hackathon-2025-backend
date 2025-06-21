@@ -22,6 +22,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
+
     def make_random_password(self) -> str:
         groups = {
             'numbers': string.digits,
