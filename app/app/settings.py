@@ -26,7 +26,10 @@ SECRET_KEY = getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv("DEBUG", "False").lower() in ("true", "1", "t")
 
-ALLOWED_HOSTS = getenv('ALLOWED_HOSTS').split(',')
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+else:    
+    ALLOWED_HOSTS = getenv('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -170,5 +173,16 @@ GITHUB_REDIRECT_URI = getenv('GITHUB_REDIRECT_URI')
 
 # CORS settings
 
-CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS').split(',')
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS').split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+# Production security settings
+
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
