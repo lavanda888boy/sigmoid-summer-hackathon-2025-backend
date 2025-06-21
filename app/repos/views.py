@@ -7,16 +7,26 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from .models import Repo
 from rest_framework import permissions
+from rest_framework.views import APIView
+from users.models import User
 
 
-@api_view(['POST'])
-@permission_classes([WorkerHeaderPermission])
-def create_repo(request):
-    serializer = RepoSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RepoCreateUpdateView(APIView):
+    permission_classes = [WorkerHeaderPermission]
+    
+    def post(self, request):
+        """Create or update a repo"""
+        repo_name = request.data.get('name')
+        if not repo_name:
+            return Response({'detail': 'Name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update if exists, otherwise create
+        repo, created = Repo.objects.update_or_create(
+            name=repo_name,
+            defaults=request.data
+        )
+        serializer = RepoSerializer(repo)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
 
 class RepoSearchPagination(PageNumberPagination):
@@ -50,3 +60,16 @@ class RepoSearchView(ListAPIView):
             queryset = queryset.filter(good_first=True)
 
         return queryset
+
+
+class FiltersListView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        pref_langs = [key for key, _ in User.PREF_LANGS_CHOICES]
+        pref_domains = [key for key, _ in User.PREF_DOMAINS_CHOICES]
+
+        return Response({
+            'pref_langs': pref_langs,
+            'pref_domains': pref_domains,
+        })

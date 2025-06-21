@@ -53,8 +53,14 @@ class User(AbstractBaseUser):
         ('c#', 'C#'),
         ('python', 'Python'),
         ('java', 'Java'),
-        ('js', 'JS'),
+        ('javascript', 'JavaScript'),
         ('go', 'Go'),
+        ('typescript', 'TypeScript'),
+        ('ruby', 'Ruby'),
+        ('shell', 'Shell'),
+        ('html', 'HTML'),
+        ('css', 'CSS'),
+        ('c++', 'C++'),
     ]
 
     PREF_DOMAINS_CHOICES = [
@@ -62,6 +68,7 @@ class User(AbstractBaseUser):
         ('backend', 'Backend'),
         ('game_dev', 'Game Development'),
         ('mobile', 'Mobile Development'),
+        ('devops', 'Devops'),
         ('docs', 'Documentation'),
     ]
     
