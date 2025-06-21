@@ -2,10 +2,14 @@ import json
 import os
 import requests
 from message_broker import get_rabbitmq_channel
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 def send_repo_request(repo_info):
-  url = "http://localhost:8000/repos/create/"
+  url = f"{os.getenv('BACKEND_URL')}/repos/create/"
   
   headers = {
     os.getenv("WORKER_PASS_HEADER"): os.getenv("WORKER_PASS_VALUE"),
