@@ -66,8 +66,8 @@ class FiltersListView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        pref_langs = [key for key, _ in User.PREF_LANGS_CHOICES]
-        pref_domains = [key for key, _ in User.PREF_DOMAINS_CHOICES]
+        pref_langs = [val for _, val in User.PREF_LANGS_CHOICES]
+        pref_domains = [val for _, val in User.PREF_DOMAINS_CHOICES]
 
         return Response({
             'pref_langs': pref_langs,

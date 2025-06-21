@@ -23,5 +23,5 @@ urlpatterns = [
     path('auth/', include('myauth.urls')),
     path('users/', include('users.urls')),
     path('repos/', include('repos.urls')),
-    path('/', HealthcheckView.as_view(), name='healthcheck-view'),
+    path('', HealthcheckView.as_view(), name='healthcheck-view'),
 ]
