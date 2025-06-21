@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.postgres.fields import ArrayField
 from django.utils import timezone
 import string
@@ -49,21 +49,21 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    PREF_LANGS_CHOICES = {
+    PREF_LANGS_CHOICES = [
         ('c#', 'C#'),
         ('python', 'Python'),
         ('java', 'Java'),
         ('js', 'JS'),
         ('go', 'Go'),
-    }
+    ]
 
-    PREF_DOMAINS_CHOICES = {
+    PREF_DOMAINS_CHOICES = [
         ('frontend', 'Frontend'),
         ('backend', 'Backend'),
         ('game_dev', 'Game Development'),
         ('mobile', 'Mobile Development'),
         ('docs', 'Documentation'),
-    }
+    ]
     
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(unique=True)
