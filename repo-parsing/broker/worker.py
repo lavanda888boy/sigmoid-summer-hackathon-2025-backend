@@ -1,13 +1,29 @@
 import json
+import os
+import requests
 from message_broker import get_rabbitmq_channel
+
+
+def send_repo_request(repo_info):
+  url = "http://localhost:8000/repos/create/"
+  
+  headers = {
+    os.getenv("WORKER_PASS_HEADER"): os.getenv("WORKER_PASS_VALUE"),
+    "Content-Type": "application/json"
+  }
+  
+  try:
+    requests.post(url, json=repo_info, headers=headers)
+  except requests.RequestException as e:
+    print(f"Error: {e}")
 
 
 def callback(ch, method, properties, body):
   try:
     repo_info = json.loads(body.decode('utf-8'))
-    print(f"✅ Received repo: {repo_info['name']} from {repo_info['owner']}")
+    send_repo_request(repo_info)
   except Exception as e:
-    print(f"❌ Failed to process message: {e}")
+    print(f"❌ Failed to forward repo: {e}")
   finally:
     ch.basic_ack(delivery_tag=method.delivery_tag)
 

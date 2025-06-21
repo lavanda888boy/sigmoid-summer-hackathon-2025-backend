@@ -37,7 +37,7 @@ def search_repositories_with_open_issues():
           "name": repo.name,
           "url": repo.html_url,
           "domains": get_repository_topics(repo.description[:MAX_CHARS]) if repo.description else [],
-          "langs": list(repo.get_languages().keys()),
+          "langs": [lang.lower() for lang in repo.get_languages().keys()],
           "forks": repo.forks_count,
           "stars": repo.stargazers_count,
           "good_first": has_good_first_issue,
@@ -61,9 +61,7 @@ def save_results_to_json(results, filename="repos.json"):
 def read_repos_from_json(filename="repos.json"):
   with open(filename, "r", encoding="utf-8") as f:
     data = json.load(f)
-
-    for repo in data:
-      yield repo
+    return data
 
 
 def send_repos_to_message_broker(repos):
