@@ -21,27 +21,26 @@ def search_repositories_with_open_issues():
 
     for repo in repositories:
       if repo.open_issues_count > 0:
-        open_issues = []
+        has_good_first_issue = False
 
         for issue in repo.get_issues(state="open"):
-          if issue.pull_request is not None:        
+          if issue.pull_request is not None:
             continue
 
-          open_issues.append({
-              "title": issue.title,
-              "url": issue.html_url,
-              "labels": [label.name for label in issue.labels],
-          })
+          labels = [label.name.lower() for label in issue.labels]
+          
+          if "good first issue" in labels:
+            has_good_first_issue = True
+            break
 
         repo_info = {
           "name": repo.name,
-          "owner": repo.owner.login,
           "url": repo.html_url,
           "domains": get_repository_topics(repo.description[:MAX_CHARS]) if repo.description else [],
-          "languages": list(repo.get_languages().keys()),
-          "topics": repo.get_topics(),
+          "langs": list(repo.get_languages().keys()),
+          "forks": repo.forks_count,
           "stars": repo.stargazers_count,
-          "open_issues": open_issues,
+          "good_first": has_good_first_issue,
         }
 
         result.append(repo_info)
@@ -57,6 +56,14 @@ def save_results_to_json(results, filename="repos.json"):
 
   with open(filename, "w+", encoding="utf-8") as f:
     json.dump(results, f, indent=2, ensure_ascii=False)
+
+
+def read_repos_from_json(filename="repos.json"):
+  with open(filename, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+    for repo in data:
+      yield repo
 
 
 def send_repos_to_message_broker(repos):
