@@ -4,6 +4,82 @@
 
 ## Backend API
 
+The backend is a `monolithic Django` (DRF) application, handling `user account`, `performance metrics`, and `repository data` within a single service. Authentication is implemented using `GitHub OAuth` for user identity and `JWT` for session management.
+
+### Authentication
+
+Authentication begins with the frontend redirecting the user to https://github.com/login/oauth/authorize, including the GitHub Client ID and callback URI as query parameters. After the user authorizes access, GitHub redirects to the specified callback URI with an authorization code. This code must then be sent in the payload of a POST request to the /auth/callback/ endpoint. In response, the client receives a pair of JWT tokens (access and refresh) along with the user's information, which is then used to populate the profile page.
+
+### Business Endpoints
+
+The backend is deployed on `Google Cloud Platform (GCP)` and is available for testing at: https://app-242229169063.europe-central2.run.app.
+
+0. GET / - `healthcheck` endpoint to verify that the server is running
+
+1. GET /repos/filters-list/ - enables the frontend to fetch the list of all supported filters
+
+    Expects: -
+
+    Returns:
+
+        {
+            "pref_langs":   string[] - all the programming languages supported for filtering,
+            "pref_domains": string[] - all the programming domains supported for filtering
+        }
+
+2. PATCH /users/update-user-prefs/ - allows the user to update (overwrite) their `preferences`
+
+    Expects (+ bearer access token in the _Authorization_ header):
+        
+        {
+            "pref_langs":   string[] - ...,
+            "pref_domains": string[] - ...
+        }
+
+    Returns:
+
+        A success message
+
+    
+
+3. POST /repos/create/ - allows the worker to create or update `discovered repository records` in the database
+
+    Expects (+ worker's secret in a custom header):
+
+        {
+            "name":         string — the display name of the repository",
+            "url":          string — repository's GitHub URL",
+            "stars":        int — number of stars the repository has",
+            "forks":        int — number of forks the repository has",
+            "langs":        string[] — list of programming languages featured in the project",
+            "domains":      string[] — list of programming domains featured in the project",
+            "good_first":   boolean — indicates if the repository has issues labeled as 'good first issue'"
+        }
+
+    Returns:
+
+        The response contains the serialized representation of the created record, structured identically to the input payload
+
+4. GET /repos/search/ - `paginated and filtered listing` of platform-aggregated repositories
+
+    Expects:
+        
+        * domain, lang, good_first - filters are passed as query parameters (omit any that aren’t needed; do not include empty parameters in the URL)
+        * page - select a part of the queriset
+
+    Returns:
+        
+        {
+            "count":    int - the count of items returned (results),
+            "next":     string - a string containing the URL to the next page of results,
+            "previous": string - a string containing the URL to the previous page of results.,
+            "results":  [
+                            {
+                                ... (lookup /repos/create/ documentation),
+                            }
+                        ]
+        }
+
 ## Repository Discovery Pipeline
 
 The pipeline consists of the three main modules: `repository parser`, `repository worker` and `openai integration`. 

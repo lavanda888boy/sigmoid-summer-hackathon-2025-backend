@@ -18,15 +18,22 @@ class RepoCreateUpdateView(APIView):
         """Create or update a repo"""
         repo_name = request.data.get('name')
         if not repo_name:
-            return Response({'detail': 'Name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'detail': 'Name is required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Update if exists, otherwise create
         repo, created = Repo.objects.update_or_create(
             name=repo_name,
             defaults=request.data
         )
+
         serializer = RepoSerializer(repo)
-        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        )
 
 
 class RepoSearchPagination(PageNumberPagination):
