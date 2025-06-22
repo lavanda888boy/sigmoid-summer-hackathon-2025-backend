@@ -1,5 +1,12 @@
 # sigmoid-summer-hackathon-2025-backend | ContributeIT
 
+## Description
+
+What’s one of the best ways for a developer to apply their technical skills and gain valuable hands-on experience outside of a traditional job ( * job application screamer * )? Contributing to open source!
+But finding the right project that matches your skills and interests can be overwhelming. That’s where ContributeIT comes in — a platform that aggregates and filters GitHub repositories that are open for contributions, helping you discover the perfect fit.
+
+## Architecture
+
 ![Architecture](./architecture.png)
 
 ## Backend API
